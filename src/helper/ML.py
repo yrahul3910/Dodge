@@ -6,8 +6,11 @@ from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
+from keras.models import Sequential
+from keras.layers import Dense, Input
 from helper.utilities import _randuniform,_randchoice,_randint
 from helper.utilities import *
+import numpy as np
 
 def DT():
     a=_randuniform(0.0,1.0)
@@ -64,9 +67,24 @@ def LR():
     tmp=a+"_"+str(round(b,5))+"_"+str(c)+"_"+LogisticRegression.__name__
     return model,tmp
 
+
+def DeepLearner(inputs=20):
+    n_layers = randint(1, 4)
+    n_units = randint(2, 20)
+
+    model = Sequential()
+
+    for i in range(n_layers):
+        model.add(Dense(n_units, activation='relu', input_shape=(inputs,)))
+
+    model.add(Dense(1, activation='sigmoid'))
+    tmp = str(n_layers) + "_" + str(n_units) + "_DL"
+    return model, tmp
+
 def run_model(train_data,test_data,model,metric,training=-1):
-    model.fit(train_data[train_data.columns[:training]], train_data["bug"])
-    prediction = model.predict(test_data[test_data.columns[:training]])
+    model.compile('sgd', loss='binary_crossentropy')
+    model.fit(train_data[train_data.columns[:training]], train_data["bug"], epochs=10, verbose=0)
+    prediction = model.predict_classes(test_data[test_data.columns[:training]])
     test_data.loc[:,"prediction"]=prediction
     return round(get_score(metric,prediction, test_data["bug"].tolist(),test_data ),5)
 

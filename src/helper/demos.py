@@ -32,7 +32,7 @@ def demo(f=None, cache=[]):
     if f == '-h':
         print('# sample demos')
         for n, d in enumerate(cache):
-            print('%3s) ' % (n + 1), d.func_name, doc(d))
+            print('%3s) ' % (n + 1), d.__name__, doc(d))
     elif f:
         cache.append(f);
     else:

@@ -54,7 +54,8 @@ def _test(res=''):
     metric="d2h"
     final = {}
     final_auc={}
-    e_value = [0.025, 0.05, 0.1, 0.2]
+    #e_value = [0.025, 0.05, 0.1, 0.2]
+    e_value = [0.2]
     start_time=time.time()
     dic={}
     dic_func={}
@@ -62,11 +63,10 @@ def _test(res=''):
         for e in e_value:
             np.random.seed(mn)
             seed(mn)
-            transformation=[[TF]*30,[TFIDF]*30, [HASHING]*8, [LDA_]*50]
-            # preprocess = [standard_scaler, minmax_scaler, maxabs_scaler, [robust_scaler] * 20, kernel_centerer,
-            #               [quantile_transform] * 200, normalizer, [binarize] * 100]  # ,[polynomial]*5
+            transformation=[[TF]*10,[TFIDF]*10, [HASHING]*8, [LDA_]*10]
+
             preprocess=[no_transformation]
-            MLs = [NB, [KNN] * 20, [RF] * 50, [DT] * 30, [LR] * 50]
+            MLs = [[DeepLearner] * 2]
             preprocess_list = unpack(preprocess)
             MLs_list = unpack(MLs)
             trans_list=unpack(transformation)
@@ -125,6 +125,7 @@ def _test(res=''):
 
             dic1 = OrderedDict(sorted(dic_auc.items(), key=itemgetter(0))).values()
             area_under_curve=round(auc(list(range(len(dic1))), dic1), 3)
+            print("AUC: ", area_under_curve)
             final[e]=dic_auc
             final_auc[e].append(area_under_curve)
     total_run=time.time()-start_time

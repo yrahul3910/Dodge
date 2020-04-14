@@ -21,6 +21,7 @@ import time
 import pickle
 from collections import OrderedDict
 from operator import itemgetter
+from tqdm import tqdm
 
 
 metrics=["d2h","popt","popt20"]
@@ -59,19 +60,17 @@ def _test(res=''):
     metric="d2h"
     final = {}
     final_auc={}
-    e_value = [0.025, 0.05, 0.1, 0.2]
+    #e_value = [0.025, 0.05, 0.1, 0.2]
+    e_value = [0.2]
     start_time=time.time()
     dic={}
     dic_func={}
     for mn in range(500+file_inc[res]*10,521+file_inc[res]*10):
-
         for e in e_value:
             np.random.seed(mn)
             seed(mn)
-            preprocess = [standard_scaler, minmax_scaler, maxabs_scaler, [robust_scaler] * 20, kernel_centerer,
-                          [quantile_transform] * 200
-                , normalizer, [binarize] * 100]  # ,[polynomial]*5
-            MLs = [NB, [KNN] * 20, [RF] * 50, [DT] * 30, [LR] * 50]  # [SVM]*100,
+            preprocess = [standard_scaler, minmax_scaler, [normalizer] * 5]  # ,[polynomial]*5
+            MLs = [[DeepLearner] * 20]  # [SVM]*100,
             preprocess_list = unpack(preprocess)
             MLs_list = unpack(MLs)
             combine = [[r[0], r[1]] for r in product(preprocess_list, MLs_list)]
@@ -93,6 +92,7 @@ def _test(res=''):
                 func_str_counter_dic[string1] = 0
 
             counter=0
+            pbar = tqdm(total=100)
             while counter!=100:
                 if counter not in dic_func.keys():
                     dic_func[counter]=[]
@@ -134,11 +134,13 @@ def _test(res=''):
                     #     dic[counter]=max(lis_value)
 
                     counter+=1
+                    pbar.update(1)
                 except:
-                    pass
+                    raise
 
             dic1 = OrderedDict(sorted(dic_auc.items(), key=itemgetter(0))).values()
             area_under_curve = round(auc(list(range(len(dic1))), list(dic1)), 3)
+            print("AUC: ", area_under_curve)
             final[e]=dic_auc
             final_auc[e].append(area_under_curve)
     total_run=time.time()-start_time
