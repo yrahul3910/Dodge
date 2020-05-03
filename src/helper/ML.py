@@ -10,6 +10,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Input
 from helper.utilities import _randuniform,_randchoice,_randint
 from helper.utilities import *
+from keras import backend as K
 import numpy as np
 
 def DT():
@@ -68,6 +69,21 @@ def LR():
     return model,tmp
 
 
+# from https://gist.github.com/wassname/ce364fddfc8a025bfab4348cf5de852d
+def weighted_categorical_crossentropy(weights):
+    """  
+    A weighted version of keras.objectives.categorical_crossentropy
+                                   
+    Variables:
+    weights: numpy array of shape (C,) where C is the number of classes
+    """ 
+    weights = K.variable(weights)
+    def loss(y_true, y_pred):
+        return K.mean(
+            K.binary_crossentropy(y_true, y_pred) * weights)
+                                                                                                            
+    return loss
+
 def DeepLearner(inputs=20):
     n_layers = randint(1, 4)
     n_units = randint(2, 20)
@@ -82,7 +98,10 @@ def DeepLearner(inputs=20):
     return model, tmp
 
 def run_model(train_data,test_data,model,metric,training=-1):
-    model.compile('sgd', loss='binary_crossentropy')
+    frac = sum(train_data["bug"]) * 1.0 / len(train_data["bug"])
+    weights = np.array([1., 1. / frac])
+
+    model.compile('sgd', loss=weighted_categorical_crossentropy(weights))
     model.fit(train_data[train_data.columns[:training]], train_data["bug"], epochs=10, verbose=0)
     prediction = model.predict_classes(test_data[test_data.columns[:training]])
     test_data.loc[:,"prediction"]=prediction

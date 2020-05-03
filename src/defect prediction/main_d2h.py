@@ -92,7 +92,6 @@ def _test(res=''):
                 func_str_counter_dic[string1] = 0
 
             counter=0
-            pbar = tqdm(total=100)
             while counter!=100:
                 if counter not in dic_func.keys():
                     dic_func[counter]=[]
@@ -134,7 +133,7 @@ def _test(res=''):
                     #     dic[counter]=max(lis_value)
 
                     counter+=1
-                    pbar.update(1)
+                    print(counter, flush=True)
                 except:
                     raise
 
@@ -149,10 +148,12 @@ def _test(res=''):
     final_auc["counter_full"]=dic
     final_auc["settings"]=dic_func
     print(final_auc)
-    with open('../../dump/d2h_' + res + '.pickle', 'wb') as handle:
-        pickle.dump(final_auc, handle)
+    print('Flushed results.', flush=True)
 
 if __name__ == '__main__':
     for i in file_inc.keys():
-        print(i)
-        _test(i)
+        if i not in []:
+            print(i)
+            print('-' * len(i))
+            print()
+            _test(i)
