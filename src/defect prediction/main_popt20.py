@@ -60,7 +60,7 @@ def _test(res=''):
     metric="popt20"
     final = {}
     final_auc={}
-    e_value = [0.025, 0.05, 0.1, 0.2]
+    e_value = [0.2]
     start_time=time.time()
     dic={}
     dic_func={}
@@ -69,10 +69,9 @@ def _test(res=''):
         for e in e_value:
             np.random.seed(mn)
             seed(mn)
-            preprocess = [standard_scaler, minmax_scaler, maxabs_scaler, [robust_scaler] * 20, kernel_centerer,
-                          [quantile_transform] * 200
-                , normalizer, [binarize] * 100]  # ,[polynomial]*5
-            MLs = [NB, [KNN] * 20, [RF] * 50, [DT] * 30, [LR] * 50]  # [SVM]*100,
+            preprocess = [standard_scaler, minmax_scaler, maxabs_scaler,
+                [normalizer] * 20, [robust_scaler] * 20]  # ,[polynomial]*5
+            MLs = [[DeepLearner] * 30]  # [SVM]*100,
             preprocess_list = unpack(preprocess)
             MLs_list = unpack(MLs)
             combine = [[r[0], r[1]] for r in product(preprocess_list, MLs_list)]
@@ -94,10 +93,11 @@ def _test(res=''):
                 func_str_counter_dic[string1] = 0
 
             counter=0
-            while counter!=1000:
+            while counter!=500:
                 if counter not in dic_func.keys():
                     dic_func[counter]=[]
                 try:
+                    print(counter, flush=True)
                     keys = [k for k, v in func_str_counter_dic.items() if v == 0]
                     key = _randchoice(keys)
                     scaler,model=func_str_dic[key]
@@ -136,10 +136,11 @@ def _test(res=''):
 
                     counter+=1
                 except:
-                    pass
+                    raise
 
             dic1 = OrderedDict(sorted(dic_auc.items(), key=itemgetter(0))).values()
-            area_under_curve=round(auc(list(range(len(dic1))), dic1), 3)
+            area_under_curve=round(auc(list(range(len(dic1))), list(dic1)), 3)
+            print('AUC:', area_under_curve)
             final[e]=dic_auc
             final_auc[e].append(area_under_curve)
     total_run=time.time()-start_time
@@ -148,8 +149,10 @@ def _test(res=''):
     final_auc["counter_full"]=dic
     final_auc["settings"]=dic_func
     print(final_auc)
-    with open('../../dump/popt20_' + res + '.pickle', 'wb') as handle:
-        pickle.dump(final_auc, handle)
 
 if __name__ == '__main__':
-    eval(cmd())
+    for key in file_dic.keys():
+        print()
+        print(key)
+        print('-' * len(key))
+        _test(key)

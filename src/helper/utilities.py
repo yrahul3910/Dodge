@@ -86,7 +86,7 @@ def get_recall(true):
     total_true = float(len([i for i in true if i == 1]))
     hit = 0.0
     recall = []
-    for i in xrange(len(true)):
+    for i in range(len(true)):
         if true[i] == 1:
             hit += 1
         recall += [hit / total_true if total_true else 0.0]
