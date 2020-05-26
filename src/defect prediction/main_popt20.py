@@ -93,7 +93,7 @@ def _test(res=''):
                 func_str_counter_dic[string1] = 0
 
             counter=0
-            while counter!=100:
+            while counter!=40:
                 if counter not in dic_func.keys():
                     dic_func[counter]=[]
                 try:
@@ -152,7 +152,7 @@ def _test(res=''):
 
 if __name__ == '__main__':
     for key in file_dic.keys():
-        if key not in ['ivy', 'lucene']:
+        if key not in ['ivy', 'lucene', 'poi', 'synapse', 'velocity']:
             print()
             print(key)
             print('-' * len(key))
