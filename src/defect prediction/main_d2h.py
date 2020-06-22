@@ -18,6 +18,7 @@ from sklearn.metrics import auc
 #from sklearn.model_selection import StratifiedKFold
 #from sklearn.model_selection import StratifiedShuffleSplit
 import time
+from concurrent.futures import ProcessPoolExecutor
 import pickle
 from collections import OrderedDict
 from operator import itemgetter
@@ -92,7 +93,7 @@ def _test(res=''):
                 func_str_counter_dic[string1] = 0
 
             counter=0
-            while counter!=100:
+            while counter!=30:
                 if counter not in dic_func.keys():
                     dic_func[counter]=[]
                 try:
@@ -139,10 +140,10 @@ def _test(res=''):
 
             dic1 = OrderedDict(sorted(dic_auc.items(), key=itemgetter(0))).values()
             area_under_curve = round(auc(list(range(len(dic1))), list(dic1)), 3)
-            print("AUC: ", area_under_curve)
             final[e]=dic_auc
             final_auc[e].append(area_under_curve)
     total_run=time.time()-start_time
+    print('Time:', total_run)
     final_auc["temp"]=final
     final_auc["time"] = total_run
     final_auc["counter_full"]=dic
@@ -152,8 +153,14 @@ def _test(res=''):
 
 if __name__ == '__main__':
     for i in file_inc.keys():
-        if i not in []:
-            print(i)
-            print('-' * len(i))
-            print()
-            _test(i)
+        if i not in ['ivy', 'lucene']:
+            times = []
+            for _ in range(1):
+                print(i)
+                print('-' * len(i))
+                print()
+                a = time.process_time()
+                with ProcessPoolExecutor(max_workers=4) as executor:
+                    result = executor.submit(_test, i).result()
+                times.append(time.process_time() - a)
+            print(np.median(times), flush=True)

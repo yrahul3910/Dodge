@@ -44,8 +44,13 @@ def get_score(criteria, prediction, test_labels,data):
     tn, fp, fn, tp = confusion_matrix(test_labels,prediction, labels=[0,1]).ravel()
     pre, rec, spec, fpr, npv, acc, f1 = get_performance(tn, fp, fn, tp)
     all_metrics = [tp, fp, tn, fn, pre, rec, spec, fpr, npv, acc, f1]
+    print(all_metrics)
     if criteria == "Accuracy":
         score = -all_metrics[-ACC]
+    elif criteria == "recall":
+        score = rec
+    elif criteria == "pf":
+        score = fpr
     elif criteria == "d2h":
         score = all_metrics[-FPR] ** 2 + (1 - all_metrics[-REC]) ** 2
         score = math.sqrt(score) / math.sqrt(2)

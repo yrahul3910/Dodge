@@ -98,10 +98,10 @@ def DeepLearner(inputs=20):
     return model, tmp
 
 def run_model(train_data,test_data,model,metric,training=-1):
-    frac = sum(train_data["bug"]) * 1.0 / len(train_data["bug"])
+    frac = sum(train_data["bug"]) / len(train_data["bug"])
     weights = np.array([1., 1. / frac])
 
-    model.compile('sgd', loss=weighted_categorical_crossentropy(weights))
+    model.compile('adam', loss=weighted_categorical_crossentropy(weights))
     model.fit(train_data[train_data.columns[:training]], train_data["bug"], epochs=10, verbose=0)
     prediction = model.predict_classes(test_data[test_data.columns[:training]])
     test_data.loc[:,"prediction"]=prediction

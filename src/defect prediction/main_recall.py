@@ -12,11 +12,13 @@ from helper.transformation import *
 from helper.utilities import _randchoice, unpack
 from helper.ML import *
 from itertools import product
+from concurrent.futures import ProcessPoolExecutor
 from sklearn.metrics import auc
 from helper.demos import *
 import time
 import pickle
 from collections import OrderedDict
+import datetime
 from operator import itemgetter
 
 
@@ -57,7 +59,7 @@ def _test(res=''):
     df['bug']=df['bug'].apply(lambda x: 0 if x == 0 else 1)
 
 
-    metric="popt20"
+    metric="pf"
     final = {}
     final_auc={}
     e_value = [0.2]
@@ -93,7 +95,7 @@ def _test(res=''):
                 func_str_counter_dic[string1] = 0
 
             counter=0
-            while counter!=40:
+            while counter!=30:
                 if counter not in dic_func.keys():
                     dic_func[counter]=[]
                 try:
@@ -152,8 +154,10 @@ def _test(res=''):
 
 if __name__ == '__main__':
     for key in file_dic.keys():
-        if key not in ['ivy', 'lucene', 'poi', 'synapse', 'velocity', 'camel', 'jedit', 'log4j', 'xalan']:
+        if key not in []:
             print()
             print(key)
             print('-' * len(key))
-            _test(key)
+            with ProcessPoolExecutor(max_workers=4) as executor:
+                print('Process started at', datetime.datetime.now())
+                result = executor.submit(_test, key).result()
